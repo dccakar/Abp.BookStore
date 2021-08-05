@@ -1,5 +1,7 @@
-﻿using Acme.BookStore.Authors;
+using Acme.BookStore.Authors;
 using Acme.BookStore.Books;
+using Acme.BookStore.FavouriteAuthors;
+using Acme.BookStore.FavouriteBookss;
 using Microsoft.EntityFrameworkCore;
 using Volo.Abp;
 using Volo.Abp.EntityFrameworkCore.Modeling;
@@ -40,6 +42,26 @@ namespace Acme.BookStore.EntityFrameworkCore
                     .HasMaxLength(AuthorConsts.MaxNameLength);
 
                 b.HasIndex(x => x.Name);
+            });
+            builder.Entity<FavouriteAuthor>(b =>
+            {
+                b.ToTable(BookStoreConsts.DbTablePrefix + "FavouriteAuthors",
+                          BookStoreConsts.DbSchema);
+                b.ConfigureByConvention(); //auto configure for the base class props
+                b.Property(x => x.AuthorName)
+                    .IsRequired()
+                    .HasMaxLength(AuthorConsts.MaxNameLength);
+
+                b.HasIndex(x => x.CreatorId);
+                b.HasOne<Author>().WithMany().HasForeignKey(x => x.AuthorId).IsRequired();
+            });
+            builder.Entity<FavouriteBook>(b =>
+            {
+                b.ToTable(BookStoreConsts.DbTablePrefix + "FavouriteBooks",
+                          BookStoreConsts.DbSchema);
+                b.ConfigureByConvention(); //auto configure for the base class props
+                b.Property(x => x.BookName).IsRequired().HasMaxLength(128);
+                b.HasOne<Book>().WithMany().HasForeignKey(x => x.BookId).IsRequired();
             });
         }
     }
